@@ -16,13 +16,13 @@ services:
     volumes_from:
       - php
     volumes:
-      - ./services/nginx/config:/etc/nginx/conf.d
+      - ~/dev/docker-php-env/services/nginx/config:/etc/nginx/conf.d
   php:
     build:
       context: ./services/php
       dockerfile: Dockerfile
     volumes:
-      - ./www:/web/www
+      - ~/dev/docker-php-env/www:/web/www
   db:
     image: mariadb:10.1
     environment:
