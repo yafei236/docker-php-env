@@ -28,3 +28,18 @@ docker inspect xx 这个命令发现问题的所在,
 - [x] 缓存管理: redis-3.2.5
 - [ ] 队列服务: rabbitmq
 - [ ] 持续添加中...
+
+
+### 使用方法
+1 克隆仓库到本地(/c/Users 目录下)
+> git clone git@github.com:yafei236/docker-php-env.git
+
+2  进入项目所在目录
+> cd docker-php-env
+
+3 创建并启动服务
+>  docker-compose build
+docker-compose up -d
+
+4 → 在浏览器里打开
+> http://docker_ip:80
