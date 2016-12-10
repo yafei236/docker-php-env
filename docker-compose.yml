@@ -1,49 +1,95 @@
 version: '2'
 services:
+### Applications Code Container #############################
+
+  applications:
+      image: tianon/true
+      volumes:
+          - ~/dev/docker-php-env/www:/web/www
+#          - ../www:/var/www
+
+### Workspace Utilities Container ###########################
+
   workspace:
     build:
-      context: ./services/workspace
+      context: ./workspace
       dockerfile: Dockerfile
+#      args:
+#        - INSTALL_XDEBUG=false
     volumes_from:
-      - php
-    tty: true
-  web:
-    image: nginx:1.11.6
+      - applications
     ports:
-      - "8080:80"
-    depends_on:
-      - php
-    volumes_from:
-      - php
-    volumes:
-      - ~/dev/docker-php-env/services/nginx/config:/etc/nginx/conf.d
-  php:
+         - "2222:22"
+    tty: true
+
+### PHP-FPM Container #######################################
+
+  php-fpm:
     build:
-      context: ./services/php
-      dockerfile: Dockerfile
-    volumes:
-      - ~/dev/docker-php-env/www:/web/www
-  db:
-    image: mariadb:10.1
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "3d_travel_platform"
-      MYSQL_USER: "yafei"
-      MYSQL_PASSWORD: "520123"
-    volumes:
-      - db:/var/lib/mysql
+      context: ./php-fpm
+#      args:
+#        - INSTALL_XDEBUG=false
+      dockerfile: Dockerfile-70
+    volumes_from:
+      - applications
+    expose:
+        - "9000"
+    links:
+        - workspace
+
+  nginx:
+      build:
+          context: ./nginx
+#          args:
+#              - PHP_UPSTREAM=php-fpm
+      volumes_from:
+          - applications
+      volumes:
+          - ./logs/nginx/:/var/log/nginx
+          - ./nginx/sites/:/etc/nginx/sites-available
+#          - ./nginx/config:/etc/nginx/conf.d
+      ports:
+          - "80:80"
+          - "443:443"
+      links:
+          - php-fpm
+
+### MariaDB Container #######################################
+
+  mariadb:
+      build: ./mariadb
+      volumes:
+          - mysql:/var/lib/mysql
+      ports:
+          - "3306:3306"
+      environment:
+          MYSQL_ROOT_PASSWORD: "root"
+          MYSQL_DATABASE: "3d_travel_platform"
+          MYSQL_USER: "yafei"
+          MYSQL_PASSWORD: "520123"
+      volumes:
+        - mariadb:/var/lib/mysql
   redis:
     image: redis:3.2.5
     ports:
       - "6379:6379"
+
+### phpMyAdmin Container ####################################
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: "db"
-      PMA_USER: "root"
-      PMA_PASSWORD: "root"
+      build: ./phpmyadmin
+      environment:
+          PMA_ARBITRARY: 1
+          MYSQL_USER: "yafei"
+          MYSQL_PASSWORD: "root"
+          MYSQL_ROOT_PASSWORD: "root"
+      ports:
+          - "8080:80"
+      links:
+          # for mysql container
+          # - "mysql:db"
+          # for mariadb container
+          - "mariadb:db"
+
 volumes:
-  db:
+  mariadb:
     driver: local

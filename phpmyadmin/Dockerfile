@@ -1,3 +1,3 @@
-FROM php:7.0-fpm
+FROM phpmyadmin/phpmyadmin
+
 MAINTAINER ouyafei <321177122@qq.com>
-WORKDIR /web/www
