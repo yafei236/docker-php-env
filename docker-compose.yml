@@ -15,6 +15,7 @@ services:
       context: ./workspace
       dockerfile: Dockerfile
 #      args:
+#        - INSTALL_WORKSPACE_SSH=false
 #        - INSTALL_XDEBUG=false
     volumes_from:
       - applications
@@ -27,8 +28,8 @@ services:
   php-fpm:
     build:
       context: ./php-fpm
-#      args:
-#        - INSTALL_XDEBUG=false
+      args:
+        - INSTALL_XDEBUG=true
       dockerfile: Dockerfile-70
     volumes_from:
       - applications
@@ -65,8 +66,8 @@ services:
       environment:
           MYSQL_ROOT_PASSWORD: "root"
           MYSQL_DATABASE: "3d_travel_platform"
-          MYSQL_USER: "yafei"
-          MYSQL_PASSWORD: "520123"
+          MYSQL_USER: "homestead"
+          MYSQL_PASSWORD: "secret"
       volumes:
         - mariadb:/var/lib/mysql
   redis:
@@ -79,8 +80,8 @@ services:
       build: ./phpmyadmin
       environment:
           PMA_ARBITRARY: 1
-          MYSQL_USER: "yafei"
-          MYSQL_PASSWORD: "root"
+          MYSQL_USER: "homestead"
+          MYSQL_PASSWORD: "secret"
           MYSQL_ROOT_PASSWORD: "root"
       ports:
           - "8080:80"
